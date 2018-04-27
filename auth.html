@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="LoginModule">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blur Admin</title>
+
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900&subset=latin,greek,greek-ext,vietnamese,cyrillic-ext,latin-ext,cyrillic' rel='stylesheet' type='text/css'>
+  
+  <!-- Angular -->
+  <script src="assets/lib/angular/angular.min.js"></script>  
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16x16.png">
+  <script>
+    angular.module("LoginModule", []);
+    angular.module("LoginModule").controller("LoginController", function ($scope, $rootScope, LoginService) {
+
+      $rootScope.urlApiLockerHomolog = "https://api.homolog.lockerapp.com.br/";
+      // $rootScope.urlApiLockerHomolog = "https://api.homolog.lockerapp.com.br"; 
+      $scope.dadosUser = {};
+      $scope.loginTempleAdmim = function (dados) {
+        LoginService.login(dados, function(result) {
+          if(result.data.status === "success"){
+            window.localStorage.setItem('adminToken', result.data.token);
+            location.href = window.location.origin + "#/dashboard";
+          }else{
+            console.log("Login falhou");
+          }
+        });
+      }
+       
+    }).service("LoginService", ["$http", "$rootScope", function ($http, $rootScope) {
+      var service = this;
+
+      //Serviço de login usuario;
+      service.login = function (dados, callBack) {
+        var req = {
+          method: 'POST',
+          url: $rootScope.urlApiLockerHomolog + '/appapi/User/Login',
+          headers: {
+            'Content-Type': undefined,
+          },
+        };
+
+        var formData = new FormData();
+        formData.append("email", dados.email);
+        formData.append("password", dados.password);
+        formData.append('uuid', "123456");
+        req.data = formData;
+
+        $http(req).then(function (result) {
+          console.log("Login com sucesso: ");
+          console.log(result);
+          callBack(result);
+
+        }, function (result) {
+          console.log("Erro no login: ");
+          console.log(result);
+        });
+        
+      };
+
+    }]);
+  </script>
+
+
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="../assets/img/favicon-96x96.png">
+
+  <link rel="stylesheet" href="styles/vendor-5fc5d68c0f.css">
+
+  <link rel="stylesheet" href="styles/auth-ad3e4e0c96.css">
+</head>
+<body ng-controller="LoginController">
+  <section class="container" style="max-width:400px; margin: 10% auto">
+    <div class="row">
+      <div class="col-md-12">
+        <form class="login_form">
+          <img class="logo_auth" src="assets/img/iurd_logo.png" alt="">
+          <h1 class="login_title">IURD Admin</h1>
+          <div class="form-group">
+            <label for="">E-mail ou Username:</label>
+            <input ng-model="dadosUser.email" class="form-control" name="email" type="email" required>
+            <br>
+            <label for="">Senha:</label>
+            <input ng-model="dadosUser.password" class="form-control" name="senha" type="password" required>
+          </div>
+          <br>
+          <div class="form-group">
+            <button class="btn btn-primary btn-block" ng-click="loginTempleAdmim(dadosUser)" >ENTRAR</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
